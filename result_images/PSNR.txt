@@ -1,0 +1,10 @@
+25% Regular Loss
+
+Peppers = 31.59 [dB]
+Lena = 
+Man =
+Baboon =
+
+10%
+
+Peppers = 32.92 [dB]
