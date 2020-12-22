@@ -1,12 +1,13 @@
-%% DWT
+%% Load Image
 % To set the default DWT mode
 % dwtmode('sym','nodisplay')
 
-clear, clc, close all
+clear, close all
 
 % Load and pre-process the test image
-load noise10r.mat
-image = 'peppers.tif';
+load noise25.mat
+%W = rand10MB();
+image = 'lena.tif';
 map = gray;
 
 X_og = imread("test_images/"+image); X_og = double(X_og);
@@ -15,7 +16,7 @@ X_og(X_og == 0) = 1;
 X = X_og.*W;
 
 imshow(X,map)
-%%
+%% DWT
 close all
 psi = 'haar';
 
@@ -65,10 +66,10 @@ disp("PSNR = " + PSNR + " [dB]");
 figure, imshow(X_og, map)
 figure, imshow(X,map)
 figure, imshow(Ae, map)
-
-%imwrite(X_og,map,'result_images/peppers.png');
-imwrite(X,map,'result_images/peppers_MB_10.png');
-imwrite(Ae,map,'result_images/peppers_result_10.png');
+%%
+imwrite(X_og,map,'result_images/man.png');
+imwrite(X,map,'result_images/man_MB_25.png');
+imwrite(Ae,map,'result_images/man_result_25.png');
 %figure, imshow(Ad, map)
 %% DCT
 close all
@@ -83,7 +84,7 @@ for k = 1:L+1
         A = idct2(dct2(A), M/2, N/2);
     end
     
-    [MB, mask] = detectMB(X, 4-k);
+    [MB, mask] = detectMB2(X, 4-k);
     
     if k > 1
         A = mergeMB(A, Ao, mask);
@@ -91,7 +92,8 @@ for k = 1:L+1
     
     Ad = direcInterp(A, MB);
     E = edge(Ad,'canny', [0.05 0.3], 2*sqrt(2));
-    E = imdilate(E, ones(k,k));
+    G = 2^(k-1);
+    E = imdilate(E, ones(G,G));
     Ae = edgeInterp2(Ad, E, MB);
     
     if k < 4
@@ -113,6 +115,9 @@ disp("PSNR = " + PSNR + " [dB]");
 
 figure, imshow(X_og, map)
 figure, imshow(Ae, map)
+%%
+%imwrite(X,map,'result_images/peppers_MB_10.png');
+imwrite(Ae,map,'result_images/peppers_result_10r_dct.png');
 %% DWT Testing
 close all
 psi = 'db2';
