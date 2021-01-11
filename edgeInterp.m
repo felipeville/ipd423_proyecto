@@ -11,12 +11,16 @@ function Y = edgeInterp(X, E, MB)
     l = length(MB);
 
     for i = 1:l
-       m = MB(i,1); n = MB(i,2);
-       if E(m,n)
-           ROI = E(m-1:m+1,n-1:n+1);
-           ROI(2,2) = 0;
-           %Y(m,n) = sum(ROI.*Y(m-1:m+1,n-1:n+1),'all')/sum(ROI,'all');
-           Y(m-1:m+1, n-1:n+1) = imgaussfilt(Y(m-1:m+1, n-1:n+1), 0.1);
-       end
+        m = MB(i,1); n = MB(i,2);
+        ROI = E(m-1:m+1,n-1:n+1);
+        ROI(2,2) = 0;
+        if sum(ROI,'all') > 0
+           if E(m,n)
+               Y(m,n) = sum(ROI.*Y(m-1:m+1,n-1:n+1),'all')/sum(ROI,'all');
+           else 
+               ROI = ones(3,3) - ROI;
+               Y(m,n) = sum(ROI.*Y(m-1:m+1,n-1:n+1),'all')/sum(ROI,'all');
+           end
+        end
     end
 end

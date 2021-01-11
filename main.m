@@ -29,16 +29,17 @@ for k = 1:L+1
         [A, cH, cV, cD] = dwt2(A, psi);
     end
     
-    if k > 1
-        A = Ao;
-    end
-    
     [MB, mask] = detectMB2(X, 4-k);
+    if k > 1
+        %A = Ao;
+        A = mergeMB(A,Ao,mask);
+    end
     Ad = direcInterp(A, MB);
-    E = edge(Ad,'canny', [0.05 0.2], 4*sqrt(2));
-    G = 2^(k-1);
-    E = imdilate(E, ones(G,G));
-    Ae = edgeInterp2(Ad, E, MB);
+    if k > 1 && k < 4
+        %Ad = blending(Ad, mask);
+    end
+    E = edge(Ad,'canny', [0.05 0.4], sqrt(2));
+    Ae = edgeInterp(Ad, E, MB);
     
     if k < 4
         %cH = detailInterp(Ae,psi,cH,mask,E,'cH');
@@ -156,3 +157,34 @@ figure, imagesc(A), colormap(map), axis image
 figure, imagesc(E), colormap(map), axis image
 figure, imagesc(Ad), colormap(map), axis image
 figure, imagesc(Ae), colormap(map), axis image
+%% Wavelet Packets
+close all
+psi = 'haar';
+
+L = 3;  % levels
+Ao = zeros(64,64);
+
+Xrec = my_wpdec2(X,X,psi,'a');
+
+[MB, mask] = detectMB2(X,0);
+
+%Xrec = mergeMB(Xrec, Xrec, mask);
+Ad = direcInterp(Xrec, MB);
+
+%Ad = blending(Ad, mask);
+
+E = edge(Ad,'canny', [0.05 0.4], sqrt(2));
+Ae = edgeInterp(Ad, E, MB);
+
+% Load the original image for comparison
+peak_value = max(max(X_og));
+min_value = min(min(X_og));
+
+Ae = floor( rescale(Ae,min_value,peak_value) );
+
+PSNR = psnr(Ae, X_og, 255);
+disp("PSNR = " + PSNR + " [dB]");
+
+figure, imshow(X_og, map)
+figure, imshow(X,map)
+figure, imshow(Ae, map)
