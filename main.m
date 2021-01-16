@@ -29,6 +29,8 @@ for k = 1:L+1
         [A, cH, cV, cD] = dwt2(A, psi);
     end
     
+	% Use detectMB2 for 25 regular pattern
+	% and detectMB3 for 10 random pattern
     [MB, mask] = detectMB3(X, 4-k);
     if k > 1
         %A = Ao;
@@ -84,6 +86,8 @@ for k = 1:L+1
         A = idct2(dct2(A), M/2, N/2);
     end
     
+	% Use detectMB2 for 25 regular pattern
+	% and detectMB3 for 10 random pattern
     [MB, mask] = detectMB2(X, 4-k);
     
     if k > 1 
@@ -165,6 +169,8 @@ Ao = zeros(64,64);
 
 Xrec = my_wpdec2(X,X,psi,'a');
 
+% Use detectMB2 for 25 regular pattern
+% and detectMB3 for 10 random pattern
 [MB, mask] = detectMB3(X,0);
 
 %Xrec = mergeMB(Xrec, Xrec, mask);
