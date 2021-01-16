@@ -9,7 +9,7 @@ function Xrec = my_wpdec2(X,Xmb,psi,type)
     end
     k = log2(size(cA,1)/32);
     
-    [MB, mask] = detectMB2(Xmb, 4-k);
+    [MB, mask] = detectMB3(Xmb, 4-k);
     if type == 'a'
         Ad = direcInterp(cA, MB);
         if k > 1

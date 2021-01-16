@@ -27,7 +27,7 @@ function Y = direcInterp(X, MB, flag)
     z(:,:,3) = [0 0 1; 0 0 0; 1 0 0];
     z(:,:,4) = [1 0 0; 0 0 0; 0 0 1];
     %z(:,:,5) = [0 1 0; 1 0 1; 0 1 0];
-    z(:,:,5) = [1 1 1; 1 0 1; 1 1 1];
+    z(:,:,5) = [sqrt(2) 1 sqrt(2); 1 0 1; sqrt(2) 1 sqrt(2)];
     
 
     R = zeros(M+2, N+2, 4);
@@ -44,7 +44,7 @@ function Y = direcInterp(X, MB, flag)
        [~, index] = max(Rn);
        Rn = sort(Rn);
        %if sum(abs(Rn))/4 < 2.5*abs(minimum)
-       if (abs(Rn(1) - R(4)) < 2*std(Rn) && ~flag)
+       if (abs(Rn(1) - R(4)) < 2.5*std(Rn) && ~flag)
            index = 5;
        end
        Y(m,n) = sum( z(:,:,index).*Y(m-1:m+1,n-1:n+1) ,'all')/sum(z(:,:,index),'all');

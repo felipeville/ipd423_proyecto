@@ -6,8 +6,8 @@ clear, close all
 
 % Load and pre-process the test image
 load noise25.mat
-%W = rand10MB();
-image = 'lena.tif';
+W = rand10MB();
+image = 'man.tif';
 map = gray;
 
 X_og = imread("test_images/"+image); X_og = double(X_og);
@@ -29,7 +29,7 @@ for k = 1:L+1
         [A, cH, cV, cD] = dwt2(A, psi);
     end
     
-    [MB, mask] = detectMB2(X, 4-k);
+    [MB, mask] = detectMB3(X, 4-k);
     if k > 1
         %A = Ao;
         A = mergeMB(A,Ao,mask);
@@ -41,11 +41,7 @@ for k = 1:L+1
     E = edge(Ad,'canny', [0.05 0.4], sqrt(2));
     Ae = edgeInterp(Ad, E, MB);
     
-    if k < 4
-        %cH = detailInterp(Ae,psi,cH,mask,E,'cH');
-        %cV = detailInterp(Ae,psi,cV,mask,E,'cV');
-        %cD = detailInterp(Ae,psi,cD,mask,E,'cD');
-        
+    if k < 4       
         cH = direcInterp(cH, MB);
         cV = direcInterp(cV, MB);
         cD = direcInterp(cD, MB);
@@ -78,6 +74,9 @@ close all
 L = 3;  % levels
 Ao = zeros(64,64);
 
+peak_value = max(max(X_og));
+min_value = min(min(X_og));
+
 for k = 1:L+1
     A = X;
     for i = k:L
@@ -87,15 +86,18 @@ for k = 1:L+1
     
     [MB, mask] = detectMB2(X, 4-k);
     
-    if k > 1
+    if k > 1 
         A = mergeMB(A, Ao, mask);
     end
     
     Ad = direcInterp(A, MB);
-    E = edge(Ad,'canny', [0.05 0.3], 2*sqrt(2));
-    G = 2^(k-1);
-    E = imdilate(E, ones(G,G));
-    Ae = edgeInterp2(Ad, E, MB);
+    if k > 1 && k < 4
+        Ad = blending(Ad, mask);
+    end
+    E = edge(Ad,'canny', [0.05 0.4], sqrt(2));
+    %G = 2^(k-1);
+    %E = imdilate(E, ones(G,G));
+    Ae = edgeInterp(Ad, E, MB);
     
     if k < 4
         Ao = idct2(dct2(Ae), M, N);
@@ -106,9 +108,6 @@ end
 
 
 % Load the original image for comparison
-peak_value = max(max(X_og));
-min_value = min(min(X_og));
-
 Ae = floor( rescale(Ae,min_value,peak_value) );
 
 PSNR = psnr(Ae, X_og, 255);
@@ -166,7 +165,7 @@ Ao = zeros(64,64);
 
 Xrec = my_wpdec2(X,X,psi,'a');
 
-[MB, mask] = detectMB2(X,0);
+[MB, mask] = detectMB3(X,0);
 
 %Xrec = mergeMB(Xrec, Xrec, mask);
 Ad = direcInterp(Xrec, MB);
